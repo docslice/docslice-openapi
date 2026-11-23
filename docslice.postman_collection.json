@@ -1,0 +1,365 @@
+{
+  "info": {
+    "name": "DocSlice API",
+    "description": "**DocSlice REST API** — Document Intelligence & Structured Extraction.\n\nConvert PDF, DOCX, RTF, TXT, CSV and images (OCR) into structured JSON, Markdown, or HTML.\n- **EU hosting** (Frankfurt, Germany); uploaded files are deleted right after processing.\n- **Bearer authentication**: pass your API key (`Authorization: Bearer ds_live_...`).\n- **Synchronous & Asynchronous Webhook** execution modes.\n\nFree API key: https://api.docslice.app/app#signup · Docs: https://docslice.app/docs/",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{apiKey}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.docslice.app"
+    },
+    {
+      "key": "apiKey",
+      "value": "",
+      "description": "Your ds_live_... key: https://api.docslice.app/app#signup"
+    }
+  ],
+  "item": [
+    {
+      "name": "System",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ],
+              "variable": [],
+              "query": []
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Document Conversion",
+      "item": [
+        {
+          "name": "Convert a document to structured JSON, Markdown, or HTML",
+          "request": {
+            "method": "POST",
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/v1/convert",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "convert"
+              ],
+              "variable": [],
+              "query": []
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "Document file (PDF, DOCX, TXT, RTF, CSV or image)",
+                  "src": []
+                },
+                {
+                  "key": "format",
+                  "type": "text",
+                  "description": "Desired output format: 'json', 'markdown', or 'html'",
+                  "value": "json",
+                  "disabled": false
+                },
+                {
+                  "key": "mode",
+                  "type": "text",
+                  "description": "Processing mode: 'sync' (instant) or 'async' (background job)",
+                  "value": "sync",
+                  "disabled": false
+                },
+                {
+                  "key": "schema",
+                  "type": "text",
+                  "description": "Optional custom JSON Schema definition for AI structured extraction",
+                  "value": "{\"type\": \"object\", \"properties\": {\"invoice_number\": {\"type\": \"string\"}, \"date\": {\"type\": \"string\"}, \"total\": {\"type\": \"number\"}}}",
+                  "disabled": false
+                },
+                {
+                  "key": "webhook_url",
+                  "type": "text",
+                  "description": "Webhook URL for async notifications",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Batch convert multiple documents or a ZIP archive",
+          "request": {
+            "method": "POST",
+            "description": "Upload and convert multiple documents or a ZIP archive in a single request.\nFeatures:\n- Atomically processes multiple PDF, DOCX, TXT, or image files\n- Automatically unpacks .zip archives (with size and file-count limits)\n- Supports synchronous and asynchronous background execution\n- Provides itemized per-file results with partial error resilience\n- Strict GDPR Zero-Retention cleanup of uploaded files",
+            "url": {
+              "raw": "{{baseUrl}}/v1/convert/batch",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "convert",
+                "batch"
+              ],
+              "variable": [],
+              "query": []
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "files",
+                  "type": "file",
+                  "description": "Array of document files or a .zip archive",
+                  "src": []
+                },
+                {
+                  "key": "format",
+                  "type": "text",
+                  "description": "Desired output format: 'json', 'markdown', or 'html'",
+                  "value": "json",
+                  "disabled": false
+                },
+                {
+                  "key": "mode",
+                  "type": "text",
+                  "description": "Processing mode: 'sync' (immediate) or 'async' (background job)",
+                  "value": "sync",
+                  "disabled": false
+                },
+                {
+                  "key": "schema",
+                  "type": "text",
+                  "description": "Optional custom JSON Schema definition for AI structured extraction",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "webhook_url",
+                  "type": "text",
+                  "description": "Webhook URL for async batch notifications",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Async Jobs",
+      "item": [
+        {
+          "name": "Get Job Status",
+          "request": {
+            "method": "GET",
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/v1/jobs/:job_id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "jobs",
+                ":job_id"
+              ],
+              "variable": [
+                {
+                  "key": "job_id",
+                  "value": "",
+                  "description": ""
+                }
+              ],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "List User Jobs",
+          "request": {
+            "method": "GET",
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/v1/jobs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "jobs"
+              ],
+              "variable": [],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "disabled": true,
+                  "description": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usage & Quota",
+      "item": [
+        {
+          "name": "Get Current Usage",
+          "request": {
+            "method": "GET",
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/v1/usage",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "usage"
+              ],
+              "variable": [],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Get Usage History",
+          "request": {
+            "method": "GET",
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/v1/usage/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "usage",
+                "history"
+              ],
+              "variable": [],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "disabled": true,
+                  "description": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "API Keys",
+      "item": [
+        {
+          "name": "List User Api Keys",
+          "request": {
+            "method": "GET",
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/v1/api-keys",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "api-keys"
+              ],
+              "variable": [],
+              "query": []
+            }
+          }
+        },
+        {
+          "name": "Create New Api Key",
+          "request": {
+            "method": "POST",
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/v1/api-keys",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "api-keys"
+              ],
+              "variable": [],
+              "query": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Revoke Api Key",
+          "request": {
+            "method": "DELETE",
+            "description": "",
+            "url": {
+              "raw": "{{baseUrl}}/v1/api-keys/:key_id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "api-keys",
+                ":key_id"
+              ],
+              "variable": [
+                {
+                  "key": "key_id",
+                  "value": "",
+                  "description": ""
+                }
+              ],
+              "query": []
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

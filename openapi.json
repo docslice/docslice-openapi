@@ -1,0 +1,971 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "DocSlice Document Intelligence API",
+    "description": "**DocSlice REST API** — Document Intelligence & Structured Extraction.\n\nConvert PDF, DOCX, RTF, TXT, CSV and images (OCR) into structured JSON, Markdown, or HTML.\n- **EU hosting** (Frankfurt, Germany); uploaded files are deleted right after processing.\n- **Bearer authentication**: pass your API key (`Authorization: Bearer ds_live_...`).\n- **Synchronous & Asynchronous Webhook** execution modes.\n\nFree API key: https://api.docslice.app/app#signup · Docs: https://docslice.app/docs/",
+    "version": "1.0.0",
+    "contact": {
+      "name": "DocSlice",
+      "email": "hello@docslice.app",
+      "url": "https://docslice.app"
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Health Check",
+        "operationId": "health_check_health_head",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/convert": {
+      "post": {
+        "tags": [
+          "Document Conversion"
+        ],
+        "summary": "Convert a document to structured JSON, Markdown, or HTML",
+        "operationId": "convert_document_v1_convert_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_convert_document_v1_convert_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/convert/batch": {
+      "post": {
+        "tags": [
+          "Document Conversion"
+        ],
+        "summary": "Batch convert multiple documents or a ZIP archive",
+        "description": "Upload and convert multiple documents or a ZIP archive in a single request.\nFeatures:\n- Atomically processes multiple PDF, DOCX, TXT, or image files\n- Automatically unpacks .zip archives (with size and file-count limits)\n- Supports synchronous and asynchronous background execution\n- Provides itemized per-file results with partial error resilience\n- Strict GDPR Zero-Retention cleanup of uploaded files",
+        "operationId": "convert_documents_batch_v1_convert_batch_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_convert_documents_batch_v1_convert_batch_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "Async Jobs"
+        ],
+        "summary": "Get Job Status",
+        "operationId": "get_job_status_v1_jobs__job_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/jobs": {
+      "get": {
+        "tags": [
+          "Async Jobs"
+        ],
+        "summary": "List User Jobs",
+        "operationId": "list_user_jobs_v1_jobs_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JobOut"
+                  },
+                  "title": "Response List User Jobs V1 Jobs Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/usage": {
+      "get": {
+        "tags": [
+          "Usage & Quota"
+        ],
+        "summary": "Get Current Usage",
+        "operationId": "get_current_usage_v1_usage_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsageSummaryOut"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/usage/history": {
+      "get": {
+        "tags": [
+          "Usage & Quota"
+        ],
+        "summary": "Get Usage History",
+        "operationId": "get_usage_history_v1_usage_history_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UsageLogOut"
+                  },
+                  "title": "Response Get Usage History V1 Usage History Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/api-keys": {
+      "get": {
+        "tags": [
+          "API Keys"
+        ],
+        "summary": "List User Api Keys",
+        "operationId": "list_user_api_keys_v1_api_keys_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ApiKeyOut"
+                  },
+                  "type": "array",
+                  "title": "Response List User Api Keys V1 Api Keys Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "API Keys"
+        ],
+        "summary": "Create New Api Key",
+        "operationId": "create_new_api_key_v1_api_keys_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApiKeyCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiKeyCreatedResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/v1/api-keys/{key_id}": {
+      "delete": {
+        "tags": [
+          "API Keys"
+        ],
+        "summary": "Revoke Api Key",
+        "operationId": "revoke_api_key_v1_api_keys__key_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "key_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Key Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiKeyCreate": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "title": "Name",
+            "default": "Default API Key"
+          }
+        },
+        "type": "object",
+        "title": "ApiKeyCreate"
+      },
+      "ApiKeyCreatedResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "key_prefix": {
+            "type": "string",
+            "title": "Key Prefix"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "last_used_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used At"
+          },
+          "api_key": {
+            "type": "string",
+            "title": "Api Key",
+            "description": "Full API key. Keep safe, shown only once!"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "key_prefix",
+          "is_active",
+          "created_at",
+          "api_key"
+        ],
+        "title": "ApiKeyCreatedResponse"
+      },
+      "ApiKeyOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "key_prefix": {
+            "type": "string",
+            "title": "Key Prefix"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "last_used_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "key_prefix",
+          "is_active",
+          "created_at"
+        ],
+        "title": "ApiKeyOut"
+      },
+      "Body_convert_document_v1_convert_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "description": "Document file (PDF, DOCX, TXT, RTF, CSV or image)"
+          },
+          "format": {
+            "type": "string",
+            "title": "Format",
+            "description": "Desired output format: 'json', 'markdown', or 'html'",
+            "default": "json"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode",
+            "description": "Processing mode: 'sync' (instant) or 'async' (background job)",
+            "default": "sync"
+          },
+          "schema": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schema",
+            "description": "Optional custom JSON Schema definition for AI structured extraction"
+          },
+          "webhook_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Webhook Url",
+            "description": "Webhook URL for async notifications"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_convert_document_v1_convert_post"
+      },
+      "Body_convert_documents_batch_v1_convert_batch_post": {
+        "properties": {
+          "files": {
+            "items": {
+              "type": "string",
+              "contentMediaType": "application/octet-stream"
+            },
+            "type": "array",
+            "title": "Files",
+            "description": "Array of document files or a .zip archive"
+          },
+          "format": {
+            "type": "string",
+            "title": "Format",
+            "description": "Desired output format: 'json', 'markdown', or 'html'",
+            "default": "json"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode",
+            "description": "Processing mode: 'sync' (immediate) or 'async' (background job)",
+            "default": "sync"
+          },
+          "schema": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Schema",
+            "description": "Optional custom JSON Schema definition for AI structured extraction"
+          },
+          "webhook_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Webhook Url",
+            "description": "Webhook URL for async batch notifications"
+          }
+        },
+        "type": "object",
+        "required": [
+          "files"
+        ],
+        "title": "Body_convert_documents_batch_v1_convert_batch_post"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version"
+          },
+          "service": {
+            "type": "string",
+            "title": "Service"
+          },
+          "database": {
+            "type": "string",
+            "title": "Database"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "version",
+          "service",
+          "database",
+          "timestamp"
+        ],
+        "title": "HealthResponse"
+      },
+      "JobOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "file_name": {
+            "type": "string",
+            "title": "File Name"
+          },
+          "file_type": {
+            "type": "string",
+            "title": "File Type"
+          },
+          "pages_count": {
+            "type": "integer",
+            "title": "Pages Count"
+          },
+          "output_format": {
+            "type": "string",
+            "title": "Output Format"
+          },
+          "ocr_applied": {
+            "type": "boolean",
+            "title": "Ocr Applied",
+            "default": false
+          },
+          "is_batch": {
+            "type": "boolean",
+            "title": "Is Batch",
+            "default": false
+          },
+          "total_files": {
+            "type": "integer",
+            "title": "Total Files",
+            "default": 1
+          },
+          "successful_files": {
+            "type": "integer",
+            "title": "Successful Files",
+            "default": 0
+          },
+          "failed_files": {
+            "type": "integer",
+            "title": "Failed Files",
+            "default": 0
+          },
+          "data": {
+            "anyOf": [
+              {},
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "input_truncated": {
+            "type": "boolean",
+            "title": "Input Truncated",
+            "description": "True when document text beyond LLM_MAX_INPUT_CHARS was not sent to the AI extractor",
+            "default": false
+          },
+          "result_expired": {
+            "type": "boolean",
+            "title": "Result Expired",
+            "description": "True when the result was erased by the retention policy",
+            "default": false
+          },
+          "error_message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Message"
+          },
+          "webhook_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Webhook Url"
+          },
+          "webhook_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Webhook Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "file_name",
+          "file_type",
+          "pages_count",
+          "output_format",
+          "created_at"
+        ],
+        "title": "JobOut"
+      },
+      "UsageLogOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "endpoint": {
+            "type": "string",
+            "title": "Endpoint"
+          },
+          "file_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Name"
+          },
+          "pages_billed": {
+            "type": "integer",
+            "title": "Pages Billed"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "title": "Duration Ms"
+          },
+          "status_code": {
+            "type": "integer",
+            "title": "Status Code"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "endpoint",
+          "file_name",
+          "pages_billed",
+          "duration_ms",
+          "status_code",
+          "created_at"
+        ],
+        "title": "UsageLogOut"
+      },
+      "UsageSummaryOut": {
+        "properties": {
+          "tier": {
+            "type": "string",
+            "title": "Tier"
+          },
+          "pages_quota": {
+            "type": "integer",
+            "title": "Pages Quota"
+          },
+          "pages_used": {
+            "type": "integer",
+            "title": "Pages Used"
+          },
+          "welcome_pages": {
+            "type": "integer",
+            "title": "Welcome Pages",
+            "default": 0
+          },
+          "pages_remaining": {
+            "type": "integer",
+            "title": "Pages Remaining"
+          },
+          "rate_limit_per_minute": {
+            "type": "integer",
+            "title": "Rate Limit Per Minute"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tier",
+          "pages_quota",
+          "pages_used",
+          "pages_remaining",
+          "rate_limit_per_minute"
+        ],
+        "title": "UsageSummaryOut"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.docslice.app",
+      "description": "Production (Frankfurt, EU)"
+    }
+  ],
+  "externalDocs": {
+    "url": "https://docslice.app/docs/",
+    "description": "Guides and examples"
+  }
+}
